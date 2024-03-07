@@ -18,9 +18,15 @@ yarn install commitlint-rs-npm
 bun add commitlint-rs-npm
 ```
 
+## Environment variables
+
+| Name           | Description           | Required |
+| -------------- | --------------------- | -------- |
+| `GITHUB_TOKEN` | For fetching releases | Yes      |
+
 ## Usage
 
-See [Documentations](#documentations)
+See [Documentations](#documentations), requires [Environment variables](#environment-variables)
 
 ## License
 
