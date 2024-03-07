@@ -1,0 +1,35 @@
+{
+  "name": "commitlint-rs-npm",
+  "version": "0.1.9",
+  "type": "module",
+  "description": "Lint commit messages with conventional commit messages",
+  "files": [
+    "prepare.js"
+  ],
+  "cpu": [
+    "x64",
+    "arm64"
+  ],
+  "os": [
+    "darwin",
+    "linux"
+  ],
+  "bin": {
+    "commitlint": "./commitlint"
+  },
+  "engines": {
+    "node": ">=18.19.1"
+  },
+  "scripts": {
+    "prepare": "node ./prepare.js"
+  },
+  "keywords": [
+    "lint",
+    "rust",
+    "cli",
+    "linter",
+    "conventional-commit"
+  ],
+  "author": "Davlatjon Shavkatov <opensource@dalisoft.uz>, Keisuke Yamashita",
+  "license": "Apache-2.0"
+}
