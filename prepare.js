@@ -9,6 +9,7 @@ import { finished } from "node:stream/promises";
 
 // Root constants
 const __dirname = dirname(fileURLToPath(import.meta.url));
+const { GITHUB_TOKEN } = process.env;
 
 // Mapping constants
 const archMap = {
@@ -30,21 +31,31 @@ const osMap = {
 const FETCH_REPO = "KeisukeYamashita/commitlint-rs";
 const FETCH_REPO_URL = `https://api.github.com/repos/KeisukeYamashita/commitlint-rs/releases/latest`;
 
-if (!process.env.GITHUB_TOKEN) {
-  console.error({
-    status: 403,
-    body: "Authorization failed",
-  });
-  process.exit(1);
-}
-
-const release = await fetch(FETCH_REPO_URL, {
+let release = await fetch(FETCH_REPO_URL, {
   headers: {
     Accept: "application/vnd.github+json",
-    Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
     "X-GitHub-Api-Version": "2022-11-28",
+    ...(GITHUB_TOKEN ? { Authorization: `Bearer ${GITHUB_TOKEN}` } : {}),
   },
-}).then((res) => res.json());
+});
+
+if (!release.ok || release.status !== 200) {
+  if (!GITHUB_TOKEN) {
+    console.error({
+      status: release.status,
+      body: "Authorization failed. Provide `GITHUB_TOKEN` environment variable",
+      error: (await release.json()).message,
+    });
+  } else {
+    console.error({
+      status: release.status,
+      body: (await release.json()).message,
+    });
+  }
+  process.exit(1);
+} else {
+  release = await release.json();
+}
 
 if (!release) {
   console.error({
