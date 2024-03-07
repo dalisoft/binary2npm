@@ -18,6 +18,10 @@ yarn install commitlint-rs-npm
 bun add commitlint-rs-npm
 ```
 
+## Limitations
+
+Currently supports only **Linux** and **macOS** systems, no **Windows** support yet due of `tar` command is unavailable on **Windows** yet
+
 ## Environment variables
 
 | Name           | Description           | Required |
