@@ -24,9 +24,9 @@ Currently supports only **Linux** and **macOS** systems, no **Windows** support 
 
 ## Environment variables
 
-| Name           | Description           | Required |
-| -------------- | --------------------- | -------- |
-| `GITHUB_TOKEN` | For fetching releases | Yes      |
+| Name           | Description                                                                                     | Required |
+| -------------- | ----------------------------------------------------------------------------------------------- | -------- |
+| `GITHUB_TOKEN` | For [GitHub API](https://docs.github.com/rest/overview/resources-in-the-rest-api#rate-limiting) | Yes      |
 
 ## Usage
 
