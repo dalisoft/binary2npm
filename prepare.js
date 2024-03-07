@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import { createWriteStream } from "node:fs";
 import { unlink } from "node:fs/promises";
 import { Readable } from "node:stream";
+import { finished } from "node:stream/promises";
 
 // Root constants
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -29,6 +30,14 @@ const osMap = {
 const FETCH_REPO = "KeisukeYamashita/commitlint-rs";
 const FETCH_REPO_URL = `https://api.github.com/repos/KeisukeYamashita/commitlint-rs/releases/latest`;
 
+if (!process.env.GITHUB_TOKEN) {
+  console.error({
+    status: 403,
+    body: "Authorization failed",
+  });
+  process.exit(1);
+}
+
 const release = await fetch(FETCH_REPO_URL, {
   headers: {
     Accept: "application/vnd.github+json",
@@ -38,7 +47,11 @@ const release = await fetch(FETCH_REPO_URL, {
 }).then((res) => res.json());
 
 if (!release) {
-  throw new Error("Project has no releases");
+  console.error({
+    status: 404,
+    body: "Project has no releases",
+  });
+  process.exit(1);
 }
 
 // Prepare constants
@@ -54,17 +67,26 @@ const localURL = `${__dirname}/commitlint`;
 await unlink(localURL).catch(() => {});
 
 // Processing
-const { body: stream } = await fetch(URL);
-await new Promise((resolve, reject) => {
-  const tar = spawn("tar", ["-xzvf", "-"], { stdio: "pipe" });
+const response = await fetch(URL);
+const { body: stream, status, ok } = response;
 
-  tar.stdout.pipe(createWriteStream(localURL, { autoClose: true }));
+if (!ok || status !== 200) {
+  console.error({
+    status,
+    body: await response.text(),
+  });
+  process.exit(1);
+}
 
-  Readable.fromWeb(stream)
-    .pipe(tar.stdin)
-    .on("finish", resolve)
-    .on("error", reject);
-}).catch((err) => {
-  throw err;
+const spawnTar = spawn("tar", ["-xzvf", "-"], {
+  shell: true,
+  detached: true,
 });
-await process.exit(0);
+spawnTar.stdout.pipe(createWriteStream(localURL, { autoClose: true }));
+
+await finished(Readable.fromWeb(stream).pipe(spawnTar.stdin));
+
+console.error({
+  status,
+  body: "Done",
+});
