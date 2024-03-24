@@ -13,6 +13,7 @@ export const maps = {
   // Mapping constants
   arch: {
     arm64: "aarch64",
+    x86: "x86_64",
     x64: "x86_64",
   },
   vendor: {
@@ -46,7 +47,7 @@ export const prepare = async ({
 
   switch (remote) {
     case "github": {
-      FETCH_REPO_URL = `https://api.github.com/repos/${FETCH_REPO}/releases/latest`;
+      FETCH_REPO_URL = `https://api.github.com/repos/${FETCH_REPO}/releases`;
       FETCH_REPO_OPTIONS = {
         headers: {
           Accept: "application/vnd.github+json",
@@ -79,7 +80,7 @@ export const prepare = async ({
     process.exit(1);
     return false;
   } else {
-    release = await release.json();
+    [release] = await release.json();
   }
 
   if (!release) {
