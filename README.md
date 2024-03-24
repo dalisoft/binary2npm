@@ -1,26 +1,17 @@
-# commitlint-rs-npm
+# bin2npm
 
-Lint commit messages with conventional commit messages
+Prepare execution script for linking binaries from other tools/languages
 
-> **npm** integration for [commitlint-rs](https://github.com/KeisukeYamashita/commitlint-rs) without any overhead so using full power of `commitlint-rs` CLI performance and feature
-
-## Documentations
-
-Look at [official documentation](https://keisukeyamashita.github.io/commitlint-rs)
+Currently supports only **GitHub API**
 
 ## Installation
 
 ```sh
-npm install -g commitlint-rs-npm
 # or
-yarn install commitlint-rs-npm
+yarn install bin2npm
 # or
-bun add commitlint-rs-npm
+bun add bin2npm
 ```
-
-## Limitations
-
-Currently supports only **Linux** and **macOS** systems, no **Windows** support yet due of `tar` command is unavailable on **Windows** yet
 
 ## Environment variables
 
@@ -30,7 +21,19 @@ Currently supports only **Linux** and **macOS** systems, no **Windows** support 
 
 ## Usage
 
-See [Documentations](#documentations), requires [Environment variables](#environment-variables)
+See [example](./examples/run.js)
+
+```ts
+import { prepare } from "bin2npm";
+
+await prepare({
+  remote: "github",
+  author: "MyGitHubUser",
+  repository: "my-repo",
+  remoteToken: process.env.GITHUB_TOKEN, // To avoid Github API limiting
+  binary: "my-binary",
+});
+```
 
 ## License
 

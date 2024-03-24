@@ -1,3 +1,4 @@
 .env
 commitlint
 .DS_Store
+node_modules

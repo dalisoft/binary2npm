@@ -1,103 +1,201 @@
-import os from "node:os";
-import { spawn } from "node:child_process";
-import { dirname } from "node:path";
-import { fileURLToPath } from "node:url";
 import { createWriteStream } from "node:fs";
 import { unlink } from "node:fs/promises";
+import os from "node:os";
+import { dirname } from "node:path";
 import { Readable } from "node:stream";
 import { finished } from "node:stream/promises";
+import { fileURLToPath } from "node:url";
+import { createGunzip } from "node:zlib";
+import tarExtract from "tar-stream/extract.js";
 
-// Root constants
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const { GITHUB_TOKEN } = process.env;
 
-// Mapping constants
-const archMap = {
-  arm64: "aarch64",
-  x64: "x86_64",
-};
-const vendorMap = {
-  darwin: "apple",
-  win32: "pc",
-  linux: "unknown",
-};
-const osMap = {
-  darwin: "darwin",
-  win32: "windows-msvc",
-  linux: "linux",
-};
-
-// Project constants
-const FETCH_REPO = "KeisukeYamashita/commitlint-rs";
-const FETCH_REPO_URL = `https://api.github.com/repos/KeisukeYamashita/commitlint-rs/releases/latest`;
-
-let release = await fetch(FETCH_REPO_URL, {
-  headers: {
-    Accept: "application/vnd.github+json",
-    "X-GitHub-Api-Version": "2022-11-28",
-    ...(GITHUB_TOKEN ? { Authorization: `Bearer ${GITHUB_TOKEN}` } : {}),
+export const maps = {
+  // Mapping constants
+  arch: {
+    arm64: "aarch64",
+    x64: "x86_64",
   },
-});
+  vendor: {
+    darwin: "apple",
+    win32: "pc",
+    linux: "unknown",
+  },
+  os: {
+    darwin: "darwin",
+    win32: "windows-msvc",
+    linux: "linux",
+  },
+};
 
-if (!release.ok || release.status !== 200) {
-  if (!GITHUB_TOKEN) {
-    console.error({
-      status: release.status,
-      body: "Authorization failed. Provide `GITHUB_TOKEN` environment variable",
-      error: (await release.json()).message,
-    });
-  } else {
-    console.error({
-      status: release.status,
-      body: (await release.json()).message,
-    });
+/**
+ *
+ * @param options Prepare options
+ * @param options.remote Remote hosting (e.g. `github`)
+ * @returns
+ */
+export const prepare = async ({
+  remote,
+  author,
+  repository,
+  remoteToken = process.env.REMOTE_TOKEN,
+  binary,
+}) => {
+  const FETCH_REPO = `${author}/${repository}`;
+  let FETCH_REPO_URL;
+  let FETCH_REPO_OPTIONS;
+
+  switch (remote) {
+    case "github": {
+      FETCH_REPO_URL = `https://api.github.com/repos/${FETCH_REPO}/releases/latest`;
+      FETCH_REPO_OPTIONS = {
+        headers: {
+          Accept: "application/vnd.github+json",
+          "X-GitHub-Api-Version": "2022-11-28",
+          ...(remoteToken ? { Authorization: `Bearer ${remoteToken}` } : {}),
+        },
+      };
+      break;
+    }
+    default: {
+      throw new Error("Invalid remote");
+      return false;
+    }
   }
-  process.exit(1);
-} else {
-  release = await release.json();
-}
 
-if (!release) {
-  console.error({
-    status: 404,
-    body: "Project has no releases",
+  let release = await fetch(FETCH_REPO_URL, FETCH_REPO_OPTIONS);
+  if (!release.ok || release.status !== 200) {
+    if (!remoteToken) {
+      console.error({
+        status: release.status,
+        body: "Authorization failed. Provide `REMOTE_TOKEN` environment variable",
+        error: (await release.json()).message,
+      });
+    } else {
+      console.error({
+        status: release.status,
+        body: (await release.json()).message,
+      });
+    }
+    process.exit(1);
+    return false;
+  } else {
+    release = await release.json();
+  }
+
+  if (!release) {
+    console.error({
+      status: 404,
+      body: "Project has no releases",
+    });
+    process.exit(1);
+    return false;
+  }
+
+  // Prepare constants
+  const arch = maps.arch[process.arch];
+  const vendor = maps.vendor[os.platform()];
+  const _os = maps.os[os.platform()];
+  const { assets, tag_name } = release;
+  const version = tag_name.slice(1);
+  let extension;
+
+  const asset = release.assets.find(({ name }) => {
+    let assetName = name;
+
+    if (!(assetName.includes(binary) && assetName.includes(version))) {
+      return false;
+    } else {
+      assetName = assetName.slice(assetName.indexOf(version) + version.length);
+    }
+
+    if (!assetName.includes(arch)) {
+      return false;
+    } else {
+      assetName = assetName.slice(assetName.indexOf(arch) + arch.length);
+    }
+
+    if (assetName.length > 12) {
+      if (!assetName.includes(vendor)) {
+        return false;
+      } else {
+        assetName = assetName.slice(assetName.indexOf(vendor) + vendor.length);
+      }
+      if (!assetName.includes(_os)) {
+        return false;
+      } else {
+        assetName = assetName.slice(assetName.indexOf(_os) + _os.length);
+      }
+    } else if (assetName.length > 8) {
+      if (!assetName.includes(_os)) {
+        return false;
+      } else {
+        assetName = assetName.slice(assetName.indexOf(_os) + _os.length);
+      }
+    }
+
+    extension = assetName;
+    return true;
   });
-  process.exit(1);
-}
 
-// Prepare constants
-const suffix = `${archMap[process.arch]}-${vendorMap[os.platform()]}-${
-  osMap[os.platform()]
-}`;
-const { tag_name, assets } = release;
-const assetFileName = `commitlint-${tag_name}-${suffix}.tar.gz`;
-const URL = `https://github.com/${FETCH_REPO}/releases/download/${tag_name}/${assetFileName}`;
-const localURL = `${__dirname}/commitlint`;
+  // Preparing
+  const localURL = `${__dirname}/${binary}`;
+  await unlink(localURL).catch(() => {
+    console.error({
+      status: 403,
+      body: "Unlink old file failed",
+    });
+  });
 
-// Preparing
-await unlink(localURL).catch(() => {});
+  // Processing
+  const response = await fetch(asset.browser_download_url);
+  const { body: bodyStream, status, ok } = response;
 
-// Processing
-const response = await fetch(URL);
-const { body: stream, status, ok } = response;
+  if (!ok || status !== 200) {
+    console.error({
+      status,
+      body: await response.text(),
+    });
+    process.exit(1);
+    return false;
+  }
 
-if (!ok || status !== 200) {
-  console.error({
+  const extract = tarExtract();
+
+  extract.on(
+    "entry",
+    (
+      header,
+      /** @type {ReadableStream} */ stream,
+      /** @type {Function} */ next
+    ) => {
+      if (header.type === "file" && header.name === binary) {
+        stream
+          .pipe(createWriteStream(localURL, { mode: 0x544, autoClose: true }))
+          .on("end", next);
+
+        stream.resume();
+      } else {
+        stream.resume();
+        next();
+      }
+    }
+  );
+
+  await finished(
+    Readable.fromWeb(bodyStream).pipe(createGunzip()).pipe(extract)
+  ).catch((err) => {
+    console.error({
+      status: 403,
+      body: "Pipeline not finished",
+      stack_trace: err,
+    });
+  });
+
+  console.log({
     status,
-    body: await response.text(),
+    body: "Done",
   });
-  process.exit(1);
-}
 
-const spawnTar = spawn("tar", ["-xzvf", "-"], {
-  shell: true,
-  detached: true,
-});
-spawnTar.stdout.pipe(createWriteStream(localURL, { autoClose: true }));
-
-await finished(Readable.fromWeb(stream).pipe(spawnTar.stdin));
-
-console.error({
-  status,
-  body: "Done",
-});
+  return true;
+};

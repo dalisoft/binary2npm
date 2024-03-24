@@ -1,35 +1,25 @@
 {
-  "name": "commitlint-rs-npm",
-  "version": "0.1.9",
-  "type": "module",
-  "description": "Lint commit messages with conventional commit messages",
-  "files": [
-    "prepare.js"
-  ],
-  "cpu": [
-    "x64",
-    "arm64"
-  ],
-  "os": [
-    "darwin",
-    "linux"
-  ],
-  "bin": {
-    "commitlint": "./commitlint"
-  },
+  "name": "bin2npm",
+  "version": "0.0.1",
+  "author": "Davlatjon Shavkatov <opensource@dalisoft.uz>",
+  "main": "prepare.js",
+  "description": "Prepare execution script for linking binaries from other tools/languages",
   "engines": {
     "node": ">=18.19.1"
   },
-  "scripts": {
-    "prepare": "node ./prepare.js"
-  },
-  "keywords": [
-    "lint",
-    "rust",
-    "cli",
-    "linter",
-    "conventional-commit"
+  "files": [
+    "prepare.d.ts",
+    "prepare.js"
   ],
-  "author": "Davlatjon Shavkatov <opensource@dalisoft.uz>, Keisuke Yamashita",
-  "license": "Apache-2.0"
+  "keywords": [
+    "binary",
+    "remote",
+    "link"
+  ],
+  "license": "Apache-2.0",
+  "type": "module",
+  "typings": "prepare.d.ts",
+  "dependencies": {
+    "tar-stream": "^3.1.7"
+  }
 }
