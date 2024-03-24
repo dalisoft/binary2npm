@@ -1,8 +1,15 @@
 {
   "name": "binary2npm",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "author": "Davlatjon Shavkatov <opensource@dalisoft.uz>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dalisoft/binary2npm.git"
+  },
   "main": "prepare.js",
+  "bugs": {
+    "url": "https://github.com/dalisoft/binary2npm/issues"
+  },
   "description": "Prepare execution script for linking binaries from other tools/languages",
   "engines": {
     "node": ">=18.19.1"
@@ -11,23 +18,13 @@
     "prepare.d.ts",
     "prepare.js"
   ],
+  "homepage": "https://github.com/dalisoft/binary2npm#readme",
   "keywords": [
     "binary",
     "remote",
     "link"
   ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/dalisoft/binary2npm.git"
-  },
-  "bugs": {
-    "url": "https://github.com/dalisoft/binary2npm/issues"
-  },
-  "homepage": "https://github.com/dalisoft/binary2npm#readme",
   "license": "Apache-2.0",
   "type": "module",
-  "typings": "prepare.d.ts",
-  "dependencies": {
-    "tar-stream": "^3.1.7"
-  }
+  "typings": "prepare.d.ts"
 }

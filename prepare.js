@@ -1,14 +1,14 @@
+import { spawn } from "node:child_process";
 import { createWriteStream } from "node:fs";
 import { unlink } from "node:fs/promises";
 import os from "node:os";
 import { dirname } from "node:path";
 import { Readable } from "node:stream";
 import { finished } from "node:stream/promises";
-import { createGunzip } from "node:zlib";
-import tarExtract from "tar-stream/extract.js";
 
 const __dirname = dirname(process.argv[1]);
 
+const noop = () => {};
 export const maps = {
   // Mapping constants
   arch: {
@@ -139,12 +139,10 @@ export const prepare = async ({
 
   // Preparing
   const localURL = `${__dirname}/${binary}`;
-  await unlink(localURL).catch(() => {
-    console.error({
-      status: 403,
-      body: "Unlink old file failed",
-    });
-  });
+  await Promise.all([
+    unlink(localURL).catch(noop),
+    unlink(localURL + extension).catch(noop),
+  ]);
 
   // Processing
   const response = await fetch(asset.browser_download_url);
@@ -159,42 +157,22 @@ export const prepare = async ({
     return false;
   }
 
-  const extract = tarExtract();
-
-  extract.on(
-    "entry",
-    (
-      header,
-      /** @type {ReadableStream} */ stream,
-      /** @type {Function} */ next
-    ) => {
-      if (header.type === "file" && header.name === binary) {
-        stream
-          .pipe(createWriteStream(localURL, { mode: 0x544, autoClose: true }))
-          .on("end", next);
-
-        stream.resume();
-      } else {
-        stream.resume();
-        next();
-      }
-    }
+  await finished(
+    Readable.fromWeb(bodyStream).pipe(createWriteStream(localURL + extension))
   );
 
-  await finished(
-    Readable.fromWeb(bodyStream).pipe(createGunzip()).pipe(extract)
-  ).catch((err) => {
-    console.error({
-      status: 403,
-      body: "Pipeline not finished",
-      stack_trace: err,
-    });
-  });
+  const runCommand = `tar -xzvf ${localURL + extension}`;
+  const spawnCommand =
+    vendor === "pc" ? `cmd.exe /c '${runCommand}'` : runCommand;
 
-  console.log({
-    status,
-    body: "Done",
-  });
+  await finished(
+    spawn(spawnCommand, {
+      shell: true,
+      detached: true,
+      cwd: __dirname,
+    }).stdout
+  );
+  await unlink(localURL + extension).catch(noop);
 
   return true;
 };
