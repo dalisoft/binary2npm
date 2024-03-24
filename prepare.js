@@ -162,7 +162,7 @@ export const prepare = async ({
     Readable.fromWeb(bodyStream).pipe(createWriteStream(localURL + extension))
   );
 
-  const runCommand = `tar -xzvf ${localURL + extension}`;
+  const runCommand = `tar -xzvf ${localURL + extension} ${binary}`;
   const spawnCommand =
     vendor === "pc" ? `cmd.exe /c '${runCommand}'` : runCommand;
 
