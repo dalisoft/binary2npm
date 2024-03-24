@@ -4,11 +4,10 @@ import os from "node:os";
 import { dirname } from "node:path";
 import { Readable } from "node:stream";
 import { finished } from "node:stream/promises";
-import { fileURLToPath } from "node:url";
 import { createGunzip } from "node:zlib";
 import tarExtract from "tar-stream/extract.js";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+const __dirname = dirname(process.argv[1]);
 
 export const maps = {
   // Mapping constants
