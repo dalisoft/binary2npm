@@ -40,6 +40,7 @@ export const prepare = async ({
   repository,
   remoteToken = process.env.REMOTE_TOKEN,
   binary,
+  usePackageJson,
 }) => {
   const FETCH_REPO = `${author}/${repository}`;
   let FETCH_REPO_URL;
@@ -47,7 +48,14 @@ export const prepare = async ({
 
   switch (remote) {
     case "github": {
-      FETCH_REPO_URL = `https://api.github.com/repos/${FETCH_REPO}/releases`;
+      if (usePackageJson) {
+        const { default: pkg } = await import(`${__dirname}/package.json`, {
+          assert: { type: "json" },
+        });
+        FETCH_REPO_URL = `https://api.github.com/repos/${FETCH_REPO}/releases/tags/v${pkg.version}`;
+      } else {
+        FETCH_REPO_URL = `https://api.github.com/repos/${FETCH_REPO}/releases`;
+      }
       FETCH_REPO_OPTIONS = {
         headers: {
           Accept: "application/vnd.github+json",
@@ -79,6 +87,8 @@ export const prepare = async ({
     }
     process.exit(1);
     return false;
+  } else if (usePackageJson) {
+    release = await release.json();
   } else {
     [release] = await release.json();
   }
@@ -159,7 +169,7 @@ export const prepare = async ({
   }
 
   await finished(
-    Readable.fromWeb(bodyStream).pipe(createWriteStream(localURL + extension))
+    Readable.fromWeb(bodyStream).pipe(createWriteStream(localURL + extension)),
   );
 
   const runCommand = `tar -xzvf ${localURL + extension} ${binary}`;
@@ -171,7 +181,7 @@ export const prepare = async ({
       shell: true,
       detached: true,
       cwd: __dirname,
-    }).stdout
+    }).stdout,
   );
   await unlink(localURL + extension).catch(noop);
 
