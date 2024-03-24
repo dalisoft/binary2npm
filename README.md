@@ -24,6 +24,7 @@ bun add binary2npm
 See [example](./examples/run.js)
 
 ```ts
+// prepare.js
 import { prepare } from "binary2npm";
 
 await prepare({
@@ -34,6 +35,8 @@ await prepare({
   binary: "my-binary",
 });
 ```
+
+then add `prepare.js` as hook into your project
 
 ## License
 
