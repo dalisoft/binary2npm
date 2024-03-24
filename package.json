@@ -1,5 +1,5 @@
 {
-  "name": "bin2npm",
+  "name": "binary2npm",
   "version": "0.0.1",
   "author": "Davlatjon Shavkatov <opensource@dalisoft.uz>",
   "main": "prepare.js",
@@ -16,6 +16,14 @@
     "remote",
     "link"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dalisoft/binary2npm.git"
+  },
+  "bugs": {
+    "url": "https://github.com/dalisoft/binary2npm/issues"
+  },
+  "homepage": "https://github.com/dalisoft/binary2npm#readme",
   "license": "Apache-2.0",
   "type": "module",
   "typings": "prepare.d.ts",

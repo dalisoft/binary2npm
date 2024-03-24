@@ -1,4 +1,4 @@
-# bin2npm
+# binary2npm
 
 Prepare execution script for linking binaries from other tools/languages
 
@@ -8,9 +8,9 @@ Currently supports only **GitHub API**
 
 ```sh
 # or
-yarn install bin2npm
+yarn install binary2npm
 # or
-bun add bin2npm
+bun add binary2npm
 ```
 
 ## Environment variables
@@ -24,7 +24,7 @@ bun add bin2npm
 See [example](./examples/run.js)
 
 ```ts
-import { prepare } from "bin2npm";
+import { prepare } from "binary2npm";
 
 await prepare({
   remote: "github",
