@@ -1,6 +1,6 @@
 {
   "name": "binary2npm",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": "Davlatjon Shavkatov <opensource@dalisoft.uz>",
   "main": "prepare.js",
   "description": "Prepare execution script for linking binaries from other tools/languages",
