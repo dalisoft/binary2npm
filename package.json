@@ -14,6 +14,9 @@
   "engines": {
     "node": ">=18.19.1"
   },
+  "scripts": {
+    "prepare": "husky"
+  },
   "files": [
     "prepare.d.ts",
     "prepare.js"
@@ -26,5 +29,9 @@
   ],
   "license": "Apache-2.0",
   "type": "module",
-  "typings": "prepare.d.ts"
+  "typings": "prepare.d.ts",
+  "devDependencies": {
+    "commitlint-rs-npm": "^0.1.9-e",
+    "husky": "^9.0.11"
+  }
 }
