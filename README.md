@@ -7,6 +7,8 @@ Currently supports only **GitHub API**
 ## Installation
 
 ```sh
+npm install binary2npm
+# or
 yarn install binary2npm
 # or
 bun add binary2npm
