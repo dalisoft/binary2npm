@@ -14,21 +14,21 @@ export function prepare({
   usePackageJson?: boolean;
 }): Promise<boolean>;
 
-export type maps = {
+export const maps = {
   // Mapping constants
   arch: {
-    arm64: "aarch64" | "arm64";
-    x86: "x86_64";
-    x64: "x86_64";
-  };
+    arm64: "aarch64",
+    x86: "x86_64",
+    x64: "x86_64",
+  },
   vendor: {
-    darwin: "apple";
-    win32: "pc";
-    linux: "unknown";
-  };
+    darwin: "apple",
+    win32: "pc",
+    linux: "unknown",
+  },
   os: {
-    darwin: "darwin";
-    win32: "windows-msvc" | "windows";
-    linux: "linux" | "linux-musl";
-  };
-};
+    darwin: "darwin",
+    win32: "windows-msvc",
+    linux: "linux",
+  },
+} as const;
