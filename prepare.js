@@ -1,6 +1,6 @@
 import { spawn } from "node:child_process";
 import { createWriteStream } from "node:fs";
-import { unlink, readFile, writeFile, stat } from "node:fs/promises";
+import { unlink, readFile, writeFile, stat, chmod } from "node:fs/promises";
 import os from "node:os";
 import { dirname } from "node:path";
 import { Readable } from "node:stream";
@@ -182,14 +182,18 @@ export const prepare = async ({
     Readable.fromWeb(bodyStream).pipe(createWriteStream(localURL + extension))
   );
 
-  await finished(
-    spawn(`tar -xzvf ${localURL + extension} ${binary}${suffix}`, {
-      shell: true,
-      detached: true,
-      cwd: __dirname,
-    }).stdout
-  );
-  await unlink(localURL + extension).catch(noop);
+  if (extension) {
+    await finished(
+      spawn(`tar -xzvf ${localURL + extension} ${binary}${suffix}`, {
+        shell: true,
+        detached: true,
+        cwd: __dirname,
+      }).stdout
+    );
+    await unlink(localURL + extension).catch(noop);
+  }
+
+  await chmod(localURL + suffix, 0x654);
 
   // If exists `.exe` binary
   if (
