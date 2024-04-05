@@ -148,6 +148,11 @@ export const prepare = async ({
       }
     }
 
+    // Currently does not support installer
+    if (assetName.includes("install")) {
+      return false;
+    }
+
     extension = assetName;
     return true;
   });
