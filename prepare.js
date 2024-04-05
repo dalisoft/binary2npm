@@ -40,7 +40,8 @@ export const prepare = async ({
   repository,
   remoteToken = process.env.REMOTE_TOKEN,
   binary,
-  usePackageJson,
+  usePackageJson = false,
+  useVersion = true,
 }) => {
   const FETCH_REPO = `${author}/${repository}`;
   let FETCH_REPO_URL;
@@ -107,13 +108,16 @@ export const prepare = async ({
   const vendor = maps.vendor[os.platform()];
   const _os = maps.os[os.platform()];
   const { assets, tag_name } = release;
-  const version = tag_name.slice(1);
+  const version = tag_name.charAt(0) === "v" ? tag_name.slice(1) : tag_name;
   let extension;
 
   const asset = release.assets.find(({ name }) => {
     let assetName = name;
 
-    if (!(assetName.includes(binary) && assetName.includes(version))) {
+    if (
+      useVersion &&
+      !(assetName.includes(binary) && assetName.includes(version))
+    ) {
       return false;
     } else {
       assetName = assetName.slice(assetName.indexOf(version) + version.length);
@@ -169,7 +173,7 @@ export const prepare = async ({
   }
 
   await finished(
-    Readable.fromWeb(bodyStream).pipe(createWriteStream(localURL + extension)),
+    Readable.fromWeb(bodyStream).pipe(createWriteStream(localURL + extension))
   );
 
   const runCommand = `tar -xzvf ${localURL + extension} ${binary}`;
@@ -181,7 +185,7 @@ export const prepare = async ({
       shell: true,
       detached: true,
       cwd: __dirname,
-    }).stdout,
+    }).stdout
   );
   await unlink(localURL + extension).catch(noop);
 

@@ -5,6 +5,7 @@ export function prepare({
   remoteToken = process.env.REMOTE_TOKEN,
   binary,
   usePackageJson,
+  useVersion,
 }: {
   remote: "github";
   author: string;
@@ -12,6 +13,7 @@ export function prepare({
   remoteToken: string;
   binary: string;
   usePackageJson?: boolean;
+  useVersion?: boolean;
 }): Promise<boolean>;
 
 export const maps = {
