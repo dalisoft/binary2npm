@@ -39,6 +39,16 @@ await prepare({
 
 then add `prepare.js` as hook into your project
 
+## Used for CLIs
+
+This project was made for first entry but then improved and added support for other ways as well as **Windows** support added
+
+- [commitlint-rs-npm](https://github.com/dalisoft/commitlint-rs-npm)
+- [commitlint-go-npm](https://github.com/dalisoft/commitlint-go-npm)
+- [jsona-rs-npm](https://github.com/dalisoft/jsona-rs-npm)
+- [dprint-rs-npm](https://github.com/dalisoft/dprint-rs-npm)
+- [biome-rs-npm](https://github.com/dalisoft/biome-rs-npm)
+
 ## License
 
 Apache-2.0
