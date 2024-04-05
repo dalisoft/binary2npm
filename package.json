@@ -1,6 +1,6 @@
 {
   "name": "binary2npm",
-  "version": "0.0.7",
+  "version": "0.1.0",
   "author": "Davlatjon Shavkatov <opensource@dalisoft.uz>",
   "repository": {
     "type": "git",
