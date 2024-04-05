@@ -25,7 +25,7 @@ bun add binary2npm
 See [example](./examples/run.js)
 
 ```ts
-// prepare.js
+// postinstall.js
 import { prepare } from "binary2npm";
 
 await prepare({
@@ -37,7 +37,7 @@ await prepare({
 });
 ```
 
-then add `prepare.js` as hook into your project
+then add `postinstall.js` as hook into your projects scripts, see how it's implemented in [Used for CLIs](#used-for-clis)
 
 ## Used for CLIs
 
