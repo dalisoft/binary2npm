@@ -1,6 +1,6 @@
 import { spawn } from "node:child_process";
 import { createWriteStream } from "node:fs";
-import { unlink } from "node:fs/promises";
+import { unlink, readFile, writeFile, stat } from "node:fs/promises";
 import os from "node:os";
 import { dirname } from "node:path";
 import { Readable } from "node:stream";
@@ -158,9 +158,10 @@ export const prepare = async ({
   });
 
   // Preparing
+  const suffix = vendor === "pc" ? ".exe" : "";
   const localURL = `${__dirname}/${binary}`;
   await Promise.all([
-    unlink(localURL).catch(noop),
+    unlink(localURL + suffix).catch(noop),
     unlink(localURL + extension).catch(noop),
   ]);
 
@@ -181,18 +182,28 @@ export const prepare = async ({
     Readable.fromWeb(bodyStream).pipe(createWriteStream(localURL + extension))
   );
 
-  const runCommand = `tar -xzvf ${localURL + extension} ${binary}`;
-  const spawnCommand =
-    vendor === "pc" ? `cmd.exe /c '${runCommand}'` : runCommand;
-
   await finished(
-    spawn(spawnCommand, {
+    spawn(`tar -xzvf ${localURL + extension} ${binary}${suffix}`, {
       shell: true,
       detached: true,
       cwd: __dirname,
     }).stdout
   );
   await unlink(localURL + extension).catch(noop);
+
+  // If exists `.exe` binary
+  if (
+    vendor === "pc" &&
+    (await stat(`${__dirname}/${binary}${suffix}`).catch(() => false))
+  ) {
+    const pkg = await readFile(`${__dirname}/package.json`, {
+      encoding: "utf-8",
+    });
+    writeFile(
+      `${__dirname}/package.json`,
+      pkg.replace(`: "${binary}"`, `: "${binary}${suffix}"`)
+    );
+  }
 
   return true;
 };
