@@ -198,7 +198,7 @@ export const prepare = async ({
     );
     await unlink(localURL + extension).catch(noop);
   }
-  await chmod(localURL + suffix, 0x654);
+  await chmod(localURL + suffix, 0x777);
 
   // If exists `.exe` binary
   if (
