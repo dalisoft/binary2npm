@@ -1,7 +1,8 @@
 import { spawn } from "node:child_process";
+import { arch as platformArch } from "node:process";
 import { createWriteStream } from "node:fs";
 import { unlink, readFile, writeFile, stat, chmod } from "node:fs/promises";
-import os from "node:os";
+import { platform } from "node:os";
 import { dirname } from "node:path";
 import { Readable } from "node:stream";
 import { finished } from "node:stream/promises";
@@ -104,9 +105,9 @@ export const prepare = async ({
   }
 
   // Prepare constants
-  const arch = maps.arch[process.arch];
-  const vendor = maps.vendor[os.platform()];
-  const _os = maps.os[os.platform()];
+  const arch = maps.arch[platformArch];
+  const vendor = maps.vendor[platform()];
+  const _os = maps.os[platform()];
   const { assets, tag_name } = release;
   const version = tag_name.charAt(0) === "v" ? tag_name.slice(1) : tag_name;
   let extension;
@@ -178,10 +179,12 @@ export const prepare = async ({
     return false;
   }
 
+  console.log("finished?");
   await finished(
     Readable.fromWeb(bodyStream).pipe(createWriteStream(localURL + extension))
   );
 
+  console.log({ extension });
   if (extension) {
     await finished(
       spawn(`tar -xzvf ${localURL + extension} ${binary}${suffix}`, {
@@ -193,8 +196,10 @@ export const prepare = async ({
     await unlink(localURL + extension).catch(noop);
   }
 
+  console.log({ extension });
   await chmod(localURL + suffix, 0x654);
 
+  console.log({ vendor });
   // If exists `.exe` binary
   if (
     vendor === "pc" &&
