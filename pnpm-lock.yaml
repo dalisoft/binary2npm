@@ -1,0 +1,63 @@
+lockfileVersion: '6.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+devDependencies:
+  biome-rs-npm:
+    specifier: 1.6.4-b
+    version: 1.6.4-b
+  commitlint-rs-npm:
+    specifier: ^0.1.9-e
+    version: 0.1.9-e
+  dprint-rs-npm:
+    specifier: 0.45.1-a
+    version: 0.45.1-a
+  husky:
+    specifier: ^9.0.11
+    version: 9.0.11
+
+packages:
+
+  /binary2npm@0.0.5:
+    resolution: {integrity: sha512-jsUFA+yUwME1lMQm7Vwkx6trLXWvUT0L+eSvcaQ06xGzG+84akHoHUTHAW9w+WhCDiLaf6/95QOVYoK/3ATHKg==}
+    engines: {node: '>=18.19.1'}
+    dev: true
+
+  /binary2npm@0.2.0:
+    resolution: {integrity: sha512-/RDMM+UYXpWkGkYUct6Y/hVjFfqo4x7qBOgTni15aByWIj/BEWLW+hEyR4leTR6sDnSLNDJS/6NCPK2CZ00O+Q==}
+    engines: {node: '>=18.19.1'}
+    dev: true
+
+  /biome-rs-npm@1.6.4-b:
+    resolution: {integrity: sha512-N+8MTmoZPiA/T05Ys8vsjQN5d5qPzSGd3h8Jw4i7hJzJV5oT2h0Sdm9lsSzBzcw3eOa7GXmqN8ohDTGwFg1Gow==}
+    engines: {node: '>=18.19.1'}
+    hasBin: true
+    requiresBuild: true
+    dependencies:
+      binary2npm: 0.2.0
+    dev: true
+
+  /commitlint-rs-npm@0.1.9-e:
+    resolution: {integrity: sha512-3voh61uBnqQ5Wjq7qSPtUJj3uDxGSwob4d7GNfknXdlxUMceALJz0wTeie3Uj0yA3LHA/mv2xMHfsWNnvIQ2DA==}
+    engines: {node: '>=18.19.1'}
+    hasBin: true
+    dependencies:
+      binary2npm: 0.0.5
+    dev: true
+
+  /dprint-rs-npm@0.45.1-a:
+    resolution: {integrity: sha512-1CD2nHVChAzMF8+C2caM2HuEqp9UkHjk/ZR7hj4RYrLV5duVc+CNtCTH171gA+jfcozisrZbU/7Xwk5Yy5IsWg==}
+    engines: {node: '>=18.19.1'}
+    hasBin: true
+    requiresBuild: true
+    dependencies:
+      binary2npm: 0.2.0
+    dev: true
+
+  /husky@9.0.11:
+    resolution: {integrity: sha512-AB6lFlbwwyIqMdHYhwPe+kjOC3Oc5P3nThEoW/AaO2BX3vJDjWPFxYLxokUZOo6RNX20He3AaT8sESs9NJcmEw==}
+    engines: {node: '>=18'}
+    hasBin: true
+    dev: true
