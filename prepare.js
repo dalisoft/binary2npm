@@ -1,11 +1,11 @@
-import { spawn } from "node:child_process";
-import { arch as platformArch } from "node:process";
-import { createWriteStream } from "node:fs";
-import { unlink, readFile, writeFile, stat, chmod } from "node:fs/promises";
-import { platform } from "node:os";
-import { dirname } from "node:path";
-import { Readable } from "node:stream";
-import { finished } from "node:stream/promises";
+import { spawn } from 'node:child_process';
+import { createWriteStream } from 'node:fs';
+import { chmod, readFile, stat, unlink, writeFile } from 'node:fs/promises';
+import { platform } from 'node:os';
+import { dirname } from 'node:path';
+import { arch as platformArch } from 'node:process';
+import { Readable } from 'node:stream';
+import { finished } from 'node:stream/promises';
 
 const __dirname = dirname(process.argv[1]);
 
@@ -13,20 +13,20 @@ const noop = () => {};
 export const maps = {
   // Mapping constants
   arch: {
-    arm64: "aarch64",
-    x86: "x86_64",
-    x64: "x86_64",
+    arm64: 'aarch64',
+    x86: 'x86_64',
+    x64: 'x86_64'
   },
   vendor: {
-    darwin: "apple",
-    win32: "pc",
-    linux: "unknown",
+    darwin: 'apple',
+    win32: 'pc',
+    linux: 'unknown'
   },
   os: {
-    darwin: "darwin",
-    win32: "windows-msvc",
-    linux: "linux",
-  },
+    darwin: 'darwin',
+    win32: 'windows-msvc',
+    linux: 'linux'
+  }
 };
 
 /**
@@ -42,49 +42,59 @@ export const prepare = async ({
   remoteToken = process.env.REMOTE_TOKEN,
   binary,
   usePackageJson = false,
-  useVersion = true,
+  orders = ['binary', 'version', 'arch', 'vendor', 'os'],
+  stableOnly = true,
+  tagPrefix = 'v'
 }) => {
   const FETCH_REPO = `${author}/${repository}`;
   let FETCH_REPO_URL;
+  let FETCH_REPO_FALLBACK_URL;
   let FETCH_REPO_OPTIONS;
 
   switch (remote) {
-    case "github": {
+    case 'github': {
       if (usePackageJson) {
         const { default: pkg } = await import(`${__dirname}/package.json`, {
-          assert: { type: "json" },
+          assert: { type: 'json' }
         });
-        FETCH_REPO_URL = `https://api.github.com/repos/${FETCH_REPO}/releases/tags/v${pkg.version}`;
+        FETCH_REPO_URL = `https://api.github.com/repos/${FETCH_REPO}/releases/tags/${tagPrefix}${pkg.version}`;
+        FETCH_REPO_FALLBACK_URL = `https://api.github.com/repos/${FETCH_REPO}/releases/tags/${pkg.version}`;
       } else {
         FETCH_REPO_URL = `https://api.github.com/repos/${FETCH_REPO}/releases`;
       }
       FETCH_REPO_OPTIONS = {
         headers: {
-          Accept: "application/vnd.github+json",
-          "X-GitHub-Api-Version": "2022-11-28",
-          ...(remoteToken ? { Authorization: `Bearer ${remoteToken}` } : {}),
-        },
+          Accept: 'application/vnd.github+json',
+          'X-GitHub-Api-Version': '2022-11-28',
+          ...(remoteToken ? { Authorization: `Bearer ${remoteToken}` } : {})
+        }
       };
       break;
     }
     default: {
-      throw new Error("Invalid remote");
+      throw new Error('Invalid remote');
       return false;
     }
   }
 
   let release = await fetch(FETCH_REPO_URL, FETCH_REPO_OPTIONS);
+
+  // Fallback URL for some projects which uses without `v` prefix
+  if (!release.ok && release.status === 404) {
+    release = await fetch(FETCH_REPO_FALLBACK_URL, FETCH_REPO_OPTIONS);
+  }
+
   if (!release.ok || release.status !== 200) {
     if (!remoteToken) {
       console.error({
         status: release.status,
-        body: "Authorization failed. Provide `REMOTE_TOKEN` environment variable",
-        error: (await release.json()).message,
+        body: 'Authorization failed. Provide `REMOTE_TOKEN` environment variable',
+        error: (await release.json()).message
       });
     } else {
       console.error({
         status: release.status,
-        body: (await release.json()).message,
+        body: (await release.json()).message
       });
     }
     process.exit(1);
@@ -92,13 +102,16 @@ export const prepare = async ({
   } else if (usePackageJson) {
     release = await release.json();
   } else {
-    [release] = await release.json();
+    const releases = await release.json();
+    [release] = stableOnly
+      ? releases.filter(({ prerelease }) => prerelease !== stableOnly)
+      : releases;
   }
 
   if (!release) {
     console.error({
       status: 404,
-      body: "Project has no releases",
+      body: 'Project has no releases'
     });
     process.exit(1);
     return false;
@@ -109,48 +122,40 @@ export const prepare = async ({
   const vendor = maps.vendor[platform()];
   const _os = maps.os[platform()];
   const { assets, tag_name } = release;
-  const version = tag_name.charAt(0) === "v" ? tag_name.slice(1) : tag_name;
+  const version = tag_name.startsWith(tagPrefix)
+    ? tag_name.slice(tagPrefix.length)
+    : tag_name;
   let extension;
+
+  const mapOrder = {
+    binary,
+    version,
+    vendor,
+    os: _os,
+    arch
+  };
 
   const asset = release.assets.find(({ name }) => {
     let assetName = name;
 
-    if (
-      useVersion &&
-      !(assetName.includes(binary) && assetName.includes(version))
-    ) {
-      return false;
-    } else {
-      assetName = assetName.slice(assetName.indexOf(version) + version.length);
-    }
+    for (const order of orders) {
+      const content = mapOrder[order];
 
-    if (!assetName.includes(arch)) {
-      return false;
-    } else {
-      assetName = assetName.slice(assetName.indexOf(arch) + arch.length);
-    }
+      if (!content) {
+        continue;
+      }
 
-    if (assetName.length > 12) {
-      if (!assetName.includes(vendor)) {
+      if (!assetName.includes(content)) {
         return false;
       } else {
-        assetName = assetName.slice(assetName.indexOf(vendor) + vendor.length);
-      }
-      if (!assetName.includes(_os)) {
-        return false;
-      } else {
-        assetName = assetName.slice(assetName.indexOf(_os) + _os.length);
-      }
-    } else if (assetName.length > 8) {
-      if (!assetName.includes(_os)) {
-        return false;
-      } else {
-        assetName = assetName.slice(assetName.indexOf(_os) + _os.length);
+        assetName = assetName.slice(
+          assetName.indexOf(content) + content.length
+        );
       }
     }
 
     // Currently does not support installer
-    if (assetName.includes("install")) {
+    if (assetName.includes('install')) {
       return false;
     }
 
@@ -159,11 +164,11 @@ export const prepare = async ({
   });
 
   // Preparing
-  const suffix = vendor === "pc" ? ".exe" : "";
+  const suffix = vendor === 'pc' ? '.exe' : '';
   const localURL = `${__dirname}/${binary}`;
   await Promise.all([
     unlink(localURL + suffix).catch(noop),
-    unlink(localURL + extension).catch(noop),
+    unlink(localURL + extension).catch(noop)
   ]);
 
   // Processing
@@ -173,40 +178,35 @@ export const prepare = async ({
   if (!ok || status !== 200) {
     console.error({
       status,
-      body: await response.text(),
+      body: await response.text()
     });
     process.exit(1);
     return false;
   }
 
-  console.log("finished?");
   await finished(
     Readable.fromWeb(bodyStream).pipe(createWriteStream(localURL + extension))
   );
 
-  console.log({ extension });
   if (extension) {
     await finished(
       spawn(`tar -xzvf ${localURL + extension} ${binary}${suffix}`, {
         shell: true,
         detached: true,
-        cwd: __dirname,
+        cwd: __dirname
       }).stdout
     );
     await unlink(localURL + extension).catch(noop);
   }
-
-  console.log({ extension });
   await chmod(localURL + suffix, 0x654);
 
-  console.log({ vendor });
   // If exists `.exe` binary
   if (
-    vendor === "pc" &&
+    vendor === 'pc' &&
     (await stat(`${__dirname}/${binary}${suffix}`).catch(() => false))
   ) {
     const pkg = await readFile(`${__dirname}/package.json`, {
-      encoding: "utf-8",
+      encoding: 'utf-8'
     });
     writeFile(
       `${__dirname}/package.json`,
