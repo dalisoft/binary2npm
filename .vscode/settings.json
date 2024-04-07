@@ -1,4 +1,20 @@
 {
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "prettier.requireConfig": false
+  "[markdown]": {
+    "editor.defaultFormatter": "dprint.dprint"
+  },
+  "[javascript][typescript][json][jsonc]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "terminal.integrated.env.osx": {
+    "PATH": "${workspaceFolder}/node_modules/.bin"
+  },
+  "terminal.integrated.env.linux": {
+    "PATH": "${workspaceFolder}/node_modules/.bin"
+  },
+  "biome.enabled": true,
+  "biome.rename": true,
+  "biome.lspBin": "./node_modules/.bin/biome",
+  "biome.searchInPath": true,
+  "dprint.path": "./node_modules/.bin/dprint",
+  "dprint.experimentalLsp": true
 }

@@ -1,0 +1,7 @@
+{
+  "recommendations": [
+    "dprint.dprint",
+    "biomejs.biome",
+    "davidanson.vscode-markdownlint"
+  ]
+}
