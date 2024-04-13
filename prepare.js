@@ -1,17 +1,14 @@
 import { spawn } from 'node:child_process';
 import { createWriteStream } from 'node:fs';
 import { chmod, readFile, stat, unlink, writeFile } from 'node:fs/promises';
-import { platform } from 'node:os';
 import { dirname } from 'node:path';
-import { arch as platformArch } from 'node:process';
-import { Readable } from 'node:stream';
+import { arch as platformArch, platform as platformOs } from 'node:process';
 import { finished } from 'node:stream/promises';
 
 const __dirname = dirname(process.argv[1]);
 
 const noop = () => {};
 export const maps = {
-  // Mapping constants
   arch: {
     arm64: 'aarch64',
     x86: 'x86_64',
@@ -28,6 +25,9 @@ export const maps = {
     linux: 'linux'
   }
 };
+
+// This is valid extensions for GitHub release assets
+const validExtensions = ['tar.gz', 'zip'];
 
 /**
  *
@@ -73,7 +73,6 @@ export const prepare = async ({
     }
     default: {
       throw new Error('Invalid remote');
-      return false;
     }
   }
 
@@ -119,8 +118,8 @@ export const prepare = async ({
 
   // Prepare constants
   const arch = maps.arch[platformArch];
-  const vendor = maps.vendor[platform()];
-  const _os = maps.os[platform()];
+  const vendor = maps.vendor[platformOs];
+  const _os = maps.os[platformOs];
   const { assets, tag_name } = release;
   const version = tag_name.startsWith(tagPrefix)
     ? tag_name.slice(tagPrefix.length)
@@ -136,7 +135,7 @@ export const prepare = async ({
   };
 
   const asset = release.assets.find(({ name }) => {
-    let assetName = name;
+    let assetName = name?.trim();
 
     for (const order of orders) {
       const content = mapOrder[order];
@@ -147,11 +146,9 @@ export const prepare = async ({
 
       if (!assetName.includes(content)) {
         return false;
-      } else {
-        assetName = assetName.slice(
-          assetName.indexOf(content) + content.length
-        );
       }
+
+      assetName = assetName.slice(assetName.indexOf(content) + content.length);
     }
 
     // Currently does not support installer
@@ -159,9 +156,25 @@ export const prepare = async ({
       return false;
     }
 
+    // Trim for additional checks
+    assetName = assetName?.trim();
+
+    if (assetName && !validExtensions.includes(assetName.slice(1))) {
+      return false;
+    }
+
     extension = assetName;
     return true;
   });
+
+  if (!asset) {
+    console.error({
+      status: 'error',
+      body: 'Asset not found'
+    });
+    process.exit(1);
+    return false;
+  }
 
   // Preparing
   const suffix = vendor === 'pc' ? '.exe' : '';
@@ -172,8 +185,8 @@ export const prepare = async ({
   ]);
 
   // Processing
-  const response = await fetch(asset.browser_download_url);
-  const { body: bodyStream, status, ok } = response;
+  const response = await fetch(asset.browser_download_url, FETCH_REPO_OPTIONS);
+  const { status, ok } = response;
 
   if (!ok || status !== 200) {
     console.error({
@@ -184,8 +197,9 @@ export const prepare = async ({
     return false;
   }
 
-  await finished(
-    Readable.fromWeb(bodyStream).pipe(createWriteStream(localURL + extension))
+  await writeFile(
+    localURL + extension,
+    Buffer.from(await response.arrayBuffer())
   );
 
   if (extension) {
@@ -198,7 +212,9 @@ export const prepare = async ({
     );
     await unlink(localURL + extension).catch(noop);
   }
-  await chmod(localURL + suffix, 0x777);
+  if (platformOs !== 'win32') {
+    await chmod(localURL + suffix, 0x777);
+  }
 
   // If exists `.exe` binary
   if (
