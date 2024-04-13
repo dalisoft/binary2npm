@@ -48,6 +48,7 @@ This project was made for first entry but then improved and added support for ot
 - [jsona-rs-npm](https://github.com/dalisoft/jsona-rs-npm)
 - [dprint-rs-npm](https://github.com/dalisoft/dprint-rs-npm)
 - [biome-rs-npm](https://github.com/dalisoft/biome-rs-npm)
+- [oxlint-rs-npm](https://github.com/dalisoft/oxlint-rs-npm)
 
 ## License
 
