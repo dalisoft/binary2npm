@@ -1,4 +1,11 @@
-export function prepare({
+/// <reference types="node" />
+export declare const maps: {
+  arch: Record<NodeJS.Architecture, string>;
+  vendor: Record<NodeJS.Platform, string>;
+  os: Record<NodeJS.Platform, string>;
+};
+
+export declare function prepare({
   remote,
   author,
   repository,
@@ -29,22 +36,3 @@ export function prepare({
       stableOnly?: boolean;
       tagPrefix?: string;
     }): Promise<boolean>;
-
-export const maps = {
-  // Mapping constants
-  arch: {
-    arm64: 'aarch64',
-    x86: 'x86_64',
-    x64: 'x86_64'
-  },
-  vendor: {
-    darwin: 'apple',
-    win32: 'pc',
-    linux: 'unknown'
-  },
-  os: {
-    darwin: 'darwin',
-    win32: 'windows-msvc',
-    linux: 'linux'
-  }
-} as const;
