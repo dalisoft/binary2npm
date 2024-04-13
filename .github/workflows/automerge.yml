@@ -16,3 +16,4 @@ jobs:
           target: minor
           approve: true
           github-token: ${{ secrets.GH_TOKEN }}
+          command: squash and merge
