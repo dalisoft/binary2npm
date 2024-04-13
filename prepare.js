@@ -213,7 +213,7 @@ export const prepare = async ({
     await unlink(localURL + extension).catch(noop);
   }
   if (platformOs !== 'win32') {
-    await chmod(localURL + suffix, 0x777);
+    await chmod(localURL + suffix, '755');
   }
 
   // If exists `.exe` binary
