@@ -1,13 +1,20 @@
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { createWriteStream } from 'node:fs';
-import { chmod, readFile, stat, unlink, writeFile } from 'node:fs/promises';
+import fs from 'node:fs';
 import { dirname } from 'node:path';
-import { arch as platformArch, platform as platformOs } from 'node:process';
 import { finished } from 'node:stream/promises';
 
 const __dirname = dirname(process.argv[1]);
 
 const noop = () => {};
+const catchSync = (fn) => {
+  try {
+    fn();
+  } catch (e) {
+    //
+  }
+};
+
 export const maps = {
   arch: {
     arm64: 'aarch64',
@@ -117,9 +124,9 @@ export const prepare = async ({
   }
 
   // Prepare constants
-  const arch = maps.arch[platformArch];
-  const vendor = maps.vendor[platformOs];
-  const _os = maps.os[platformOs];
+  const arch = maps.arch[process.arch];
+  const vendor = maps.vendor[process.platform];
+  const _os = maps.os[process.platform];
   const { assets, tag_name } = release;
   const version = tag_name.startsWith(tagPrefix)
     ? tag_name.slice(tagPrefix.length)
@@ -177,16 +184,20 @@ export const prepare = async ({
   }
 
   // Preparing
-  const suffix = vendor === 'pc' ? '.exe' : '';
+  const suffix = !extension.endsWith('.exe') && vendor === 'pc' ? '.exe' : '';
   const localURL = `${__dirname}/${binary}`;
-  await Promise.all([
-    unlink(localURL + suffix).catch(noop),
-    unlink(localURL + extension).catch(noop)
-  ]);
+
+  if (extension) {
+    catchSync(() => {
+      fs.unlinkSync(localURL + suffix);
+      fs.unlinkSync(localURL + extension);
+    });
+  }
 
   // Processing
   const response = await fetch(asset.browser_download_url, FETCH_REPO_OPTIONS);
-  const { status, ok } = response;
+  const { status, ok, headers } = response;
+  const contentLength = +headers.get('content-length');
 
   if (!ok || status !== 200) {
     console.error({
@@ -197,34 +208,47 @@ export const prepare = async ({
     return false;
   }
 
-  await writeFile(
+  // Check if has no
+  if (!extension && contentLength > 100) {
+    const { size } = fs.statSync(localURL + extension);
+
+    if (size === contentLength) {
+      console.log({
+        status: 'success',
+        body: 'Skip, already exists'
+      });
+      process.exit(0);
+      return true;
+    }
+  }
+
+  fs.writeFileSync(
     localURL + extension,
     Buffer.from(await response.arrayBuffer())
   );
 
-  if (extension) {
-    await finished(
-      spawn(`tar -xzvf ${localURL + extension} ${binary}${suffix}`, {
-        shell: true,
-        detached: true,
-        cwd: __dirname
-      }).stdout
-    );
-    await unlink(localURL + extension).catch(noop);
-  }
-  if (platformOs !== 'win32') {
-    await chmod(localURL + suffix, '755');
+  await finished(
+    spawn(`tar -xzvf ${localURL + extension} ${binary}${suffix}`, {
+      shell: true,
+      detached: true,
+      cwd: __dirname
+    }).stdout
+  );
+  fs.unlinkSync(localURL + extension);
+
+  if (process.platform !== 'win32') {
+    fs.chmodSync(localURL, '755');
   }
 
   // If exists `.exe` binary
   if (
-    vendor === 'pc' &&
-    (await stat(`${__dirname}/${binary}${suffix}`).catch(() => false))
+    process.platform === 'win32' &&
+    fs.existsSync(`${__dirname}/${binary}${suffix}`)
   ) {
     const pkg = await readFile(`${__dirname}/package.json`, {
       encoding: 'utf-8'
     });
-    writeFile(
+    fs.writeFileSync(
       `${__dirname}/package.json`,
       pkg.replace(`: "${binary}"`, `: "${binary}${suffix}"`)
     );
