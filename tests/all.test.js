@@ -126,8 +126,6 @@ await describe('macos', async () => {
     });
     expect(return_code).toBe(true);
 
-    await new Promise(process.nextTick);
-
     expect(fs.existsSync(path.resolve(import.meta.dirname, 'dprint'))).toBe(
       true
     );
