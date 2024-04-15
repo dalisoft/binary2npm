@@ -24,10 +24,15 @@
   "type": "module",
   "typings": "prepare.d.ts",
   "devDependencies": {
-    "biome-rs-npm": "1.6.4-d",
-    "commitlint-rs-npm": "^0.1.9-e",
-    "dprint-rs-npm": "0.45.2",
+    "biome-rs-npm": "dalisoft/biome-rs-npm#v1.6.4",
+    "commitlint-rs-npm": "dalisoft/commitlint-rs-npm#v0.1.9",
+    "dprint-rs-npm": "dalisoft/dprint-rs-npm#v0.45.1",
     "husky": "^9.0.11"
   },
-  "trustedDependencies": ["husky", "biome-rs-npm", "dprint-rs-npm"]
+  "trustedDependencies": [
+    "husky",
+    "commitlint-rs-npm",
+    "biome-rs-npm",
+    "dprint-rs-npm"
+  ]
 }

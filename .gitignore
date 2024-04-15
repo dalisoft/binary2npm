@@ -4,3 +4,8 @@ commitlint
 node_modules
 
 .husky/pre-commit
+
+# Lockfiles
+bun.lockb
+package-lock.json
+yarn.lock
