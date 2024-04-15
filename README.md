@@ -7,11 +7,11 @@ Currently supports only **GitHub API**
 ## Installation
 
 ```sh
-npm install binary2npm
+npm install dalisoft/commitlint-rs-npm
 # or
-yarn install binary2npm
+yarn install dalisoft/commitlint-rs-npm
 # or
-bun add binary2npm
+bun add dalisoft/commitlint-rs-npm
 ```
 
 ## Environment variables
@@ -22,7 +22,7 @@ bun add binary2npm
 
 ## Usage
 
-See [example](./examples/run.js)
+See [example](./examples/commitlint.js)
 
 ```ts
 // postinstall.js
@@ -49,6 +49,21 @@ This project was made for first entry but then improved and added support for ot
 - [dprint-rs-npm](https://github.com/dalisoft/dprint-rs-npm)
 - [biome-rs-npm](https://github.com/dalisoft/biome-rs-npm)
 - [oxlint-rs-npm](https://github.com/dalisoft/oxlint-rs-npm)
+
+## Performance differences
+
+Using direct binary for `npm` could lead into performance boost and sometimes up-to 8 times boost.
+Tools itself blazing fast but `Node.js` `bin.js` overhead causing it to be slow
+
+| Name                | Performance boost     | PR                                                                                                   |
+| ------------------- | --------------------- | ---------------------------------------------------------------------------------------------------- |
+| `commitlint-rs-npm` | **No official `npm`** |                                                                                                      |
+| `commitlint-go-npm` | **No official `npm`** |                                                                                                      |
+| `jsona-rs-npm`      | **No official `npm`** |                                                                                                      |
+| `dprint-rs-npm`     | up to 5 times         | [#839](https://github.com/dprint/dprint/pull/839), [#840](https://github.com/dprint/dprint/pull/839) |
+| `biome-rs-npm`      | up to 8 times         | [#2359](https://github.com/biomejs/biome/pull/2359)                                                  |
+| `oxlint-rs-npm`     | up to 8 times         | [#2920](https://github.com/oxc-project/oxc/pull/2920)                                                |
+| `lefthook-go-npm`?? | up to 33%             | [#703](https://github.com/evilmartians/lefthook/issues/703)                                          |
 
 ## License
 
