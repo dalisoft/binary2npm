@@ -208,8 +208,12 @@ export const prepare = async ({
     return false;
   }
 
-  // Check if has no
-  if (!extension && contentLength > 100) {
+  // Check if has no extension
+  if (
+    !extension &&
+    contentLength > 100 &&
+    fs.existsSync(localURL + extension)
+  ) {
     const { size } = fs.statSync(localURL + extension);
 
     if (size === contentLength) {
