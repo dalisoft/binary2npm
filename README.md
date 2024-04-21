@@ -1,5 +1,8 @@
 # binary2npm
 
+> Available `posix shell` version of this tool
+> [binary2sh](https://github.com/dalisoft/binary2sh)
+
 Prepare execution script for linking binaries from other tools/languages
 
 Currently supports only **GitHub API**
@@ -7,11 +10,11 @@ Currently supports only **GitHub API**
 ## Installation
 
 ```sh
-npm install dalisoft/commitlint-rs-npm
+npm install dalisoft/binary2npm
 # or
-yarn install dalisoft/commitlint-rs-npm
+yarn install dalisoft/binary2npm
 # or
-bun add dalisoft/commitlint-rs-npm
+bun add dalisoft/binary2npm
 ```
 
 ## Environment variables
