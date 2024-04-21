@@ -24,7 +24,7 @@
   "type": "module",
   "typings": "prepare.d.ts",
   "devDependencies": {
-    "biome-rs-npm": "dalisoft/biome-rs-npm#v1.6.4",
+    "biome-rs-npm": "dalisoft/biome-rs-npm#v1.7.0",
     "commitlint-rs-npm": "dalisoft/commitlint-rs-npm#v0.1.9",
     "dprint-rs-npm": "dalisoft/dprint-rs-npm#v0.45.1",
     "husky": "^9.0.11"
