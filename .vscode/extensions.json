@@ -2,6 +2,7 @@
   "recommendations": [
     "dprint.dprint",
     "biomejs.biome",
-    "davidanson.vscode-markdownlint"
+    "davidanson.vscode-markdownlint",
+    "tekumara.typos-vscode"
   ]
 }
