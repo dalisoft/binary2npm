@@ -49,6 +49,7 @@ This project was made for first entry but then improved and added support for ot
 - [commitlint-rs-npm](https://github.com/dalisoft/commitlint-rs-npm)
 - [commitlint-go-npm](https://github.com/dalisoft/commitlint-go-npm)
 - [jsona-rs-npm](https://github.com/dalisoft/jsona-rs-npm)
+- [typos-rs-npm](https://github.com/dalisoft/typos-rs-npm)
 - [dprint-rs-npm](https://github.com/dalisoft/dprint-rs-npm)
 - [biome-rs-npm](https://github.com/dalisoft/biome-rs-npm)
 - [oxlint-rs-npm](https://github.com/dalisoft/oxlint-rs-npm)
@@ -63,6 +64,7 @@ These CLI apps are blazing fast but `Node.js` `bin.js` causing it to be slow.
 | `commitlint-rs-npm` | **No official `npm`** |                                                                                                      |
 | `commitlint-go-npm` | **No official `npm`** |                                                                                                      |
 | `jsona-rs-npm`      | **No official `npm`** |                                                                                                      |
+| `typos-rs-npm`      | **No official `npm`** |                                                                                                      |
 | `dprint-rs-npm`     | up to 5 times         | [#839](https://github.com/dprint/dprint/pull/839), [#840](https://github.com/dprint/dprint/pull/839) |
 | `biome-rs-npm`      | up to 8 times         | [#2359](https://github.com/biomejs/biome/pull/2359)                                                  |
 | `oxlint-rs-npm`     | up to 8 times         | [#2920](https://github.com/oxc-project/oxc/pull/2920)                                                |
