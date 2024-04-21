@@ -1,19 +1,12 @@
 import { spawn, spawnSync } from 'node:child_process';
-import { createWriteStream } from 'node:fs';
-import fs from 'node:fs';
+import { createWriteStream, existsSync } from 'node:fs';
+import fs from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { finished } from 'node:stream/promises';
 
 const __dirname = dirname(process.argv[1]);
 
 const noop = () => {};
-const catchSync = (fn) => {
-  try {
-    fn();
-  } catch (e) {
-    //
-  }
-};
 
 export const maps = {
   arch: {
@@ -188,10 +181,10 @@ export const prepare = async ({
   const localURL = `${__dirname}/${binary}`;
 
   if (extension) {
-    catchSync(() => {
-      fs.unlinkSync(localURL + suffix);
-      fs.unlinkSync(localURL + extension);
-    });
+    await Promise.all([
+      fs.unlink(localURL + suffix),
+      fs.unlink(localURL + extension)
+    ]);
   }
 
   // Processing
@@ -209,12 +202,8 @@ export const prepare = async ({
   }
 
   // Check if has no extension
-  if (
-    !extension &&
-    contentLength > 100 &&
-    fs.existsSync(localURL + extension)
-  ) {
-    const { size } = fs.statSync(localURL + extension);
+  if (!extension && contentLength > 100 && existsSync(localURL + extension)) {
+    const { size } = await fs.stat(localURL + extension);
 
     if (size === contentLength) {
       console.log({
@@ -226,7 +215,7 @@ export const prepare = async ({
     }
   }
 
-  fs.writeFileSync(
+  await fs.writeFile(
     localURL + extension,
     Buffer.from(await response.arrayBuffer())
   );
@@ -238,21 +227,24 @@ export const prepare = async ({
       cwd: __dirname
     }).stdout
   );
-  fs.unlinkSync(localURL + extension);
+  // Disallow file deletion bug where `extension` does not exist
+  if (extension) {
+    await fs.unlink(localURL + extension);
+  }
 
   if (process.platform !== 'win32') {
-    fs.chmodSync(localURL, '755');
+    await fs.chmod(localURL, '755');
   }
 
   // If exists `.exe` binary
   if (
     process.platform === 'win32' &&
-    fs.existsSync(`${__dirname}/${binary}${suffix}`)
+    existsSync(`${__dirname}/${binary}${suffix}`)
   ) {
     const pkg = await readFile(`${__dirname}/package.json`, {
       encoding: 'utf-8'
     });
-    fs.writeFileSync(
+    await fs.writeFile(
       `${__dirname}/package.json`,
       pkg.replace(`: "${binary}"`, `: "${binary}${suffix}"`)
     );
