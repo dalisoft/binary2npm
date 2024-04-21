@@ -182,8 +182,8 @@ export const prepare = async ({
 
   if (extension) {
     await Promise.all([
-      fs.unlink(localURL + suffix),
-      fs.unlink(localURL + extension)
+      fs.unlink(localURL + suffix).catch(noop),
+      fs.unlink(localURL + extension).catch(noop)
     ]);
   }
 
