@@ -53,6 +53,7 @@ This project was made for first entry but then improved and added support for ot
 - [dprint-rs-npm](https://github.com/dalisoft/dprint-rs-npm)
 - [biome-rs-npm](https://github.com/dalisoft/biome-rs-npm)
 - [oxlint-rs-npm](https://github.com/dalisoft/oxlint-rs-npm)
+- [lefhook-go-npm](https://github.com/dalisoft/lefthook-go-npm)
 
 ## Performance differences
 
@@ -68,7 +69,7 @@ These CLI apps are blazing fast but `Node.js` `bin.js` causing it to be slow.
 | `dprint-rs-npm`     | up to 5 times         | [#839](https://github.com/dprint/dprint/pull/839), [#840](https://github.com/dprint/dprint/pull/839) |
 | `biome-rs-npm`      | up to 8 times         | [#2359](https://github.com/biomejs/biome/pull/2359)                                                  |
 | `oxlint-rs-npm`     | up to 8 times         | [#2920](https://github.com/oxc-project/oxc/pull/2920)                                                |
-| `lefthook-go-npm`?? | up to 33%             | [#705](https://github.com/evilmartians/lefthook/pull/705)                                            |
+| `lefthook-go-npm`   | up to 33%             | [#705](https://github.com/evilmartians/lefthook/pull/705)                                            |
 
 ## License
 
