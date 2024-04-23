@@ -1,0 +1,11 @@
+- match:
+    dependency_name: dprint-rs-npm
+    update_type: all
+
+- match:
+    dependency_type: all
+    update_type: semver:minor
+
+- match:
+    dependency_type: all
+    update_type: security:minor # includes patch updates!

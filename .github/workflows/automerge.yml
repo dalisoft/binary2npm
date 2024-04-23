@@ -13,7 +13,6 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ahmadnassri/action-dependabot-auto-merge@v2
         with:
-          target: minor
           approve: true
           github-token: ${{ secrets.GH_TOKEN }}
           command: squash and merge
