@@ -15,9 +15,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: ahmadnassri/action-dependabot-auto-merge@v2
+      - uses: fastify/github-action-merge-dependabot@v3
         with:
           target: minor
-          approve: true
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          command: squash and merge
+          merge-method: squash
+          use-github-auto-merge: true
