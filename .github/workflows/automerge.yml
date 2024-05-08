@@ -20,4 +20,4 @@ jobs:
           target: minor
           github-token: ${{ secrets.GITHUB_TOKEN }}
           merge-method: squash
-          use-github-auto-merge: true
+          use-github-auto-merge: false
