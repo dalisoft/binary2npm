@@ -13,8 +13,8 @@
   },
   "biome.enabled": true,
   "biome.rename": true,
-  "biome.lspBin": "./node_modules/.bin/biome",
+  "biome.lspBin": "./node_modules/biome-rs-npm/biome",
   "biome.searchInPath": true,
-  "dprint.path": "./node_modules/.bin/dprint",
+  "dprint.path": "./node_modules/dprint-rs-npm/dprint",
   "dprint.experimentalLsp": true
 }
