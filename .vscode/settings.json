@@ -6,10 +6,10 @@
     "editor.defaultFormatter": "biomejs.biome"
   },
   "terminal.integrated.env.osx": {
-    "PATH": "${workspaceFolder}/node_modules/.bin"
+    // "PATH": "${workspaceFolder}/node_modules/.bin"
   },
   "terminal.integrated.env.linux": {
-    "PATH": "${workspaceFolder}/node_modules/.bin"
+    // "PATH": "${workspaceFolder}/node_modules/.bin"
   },
   "biome.enabled": true,
   "biome.rename": true,
