@@ -71,7 +71,7 @@ These CLI apps are blazing fast but `Node.js` `bin.js` causing it to be slow.
 | `biome-rs-npm`      | up to 8 times         | [#2359](https://github.com/biomejs/biome/pull/2359)                                                  |
 | `oxlint-rs-npm`     | up to 8 times         | [#2920](https://github.com/oxc-project/oxc/pull/2920)                                                |
 | `lefthook-go-npm`   | up to 33%             | [#705](https://github.com/evilmartians/lefthook/pull/705)                                            |
-| `ls-lint-rs-npm`    | up to 16 times        |                                                                                                      |
+| `ls-lint-go-npm`    | up to 16 times        |                                                                                                      |
 
 ## License
 
