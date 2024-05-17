@@ -14,25 +14,10 @@
   "engines": {
     "node": ">=18.19.1"
   },
-  "scripts": {
-    "prepare": "husky"
-  },
   "files": ["prepare.d.ts", "prepare.js"],
   "homepage": "https://github.com/dalisoft/binary2npm#readme",
   "keywords": ["binary", "remote", "link"],
   "license": "Apache-2.0",
   "type": "module",
-  "typings": "prepare.d.ts",
-  "devDependencies": {
-    "biome-rs-npm": "dalisoft/biome-rs-npm#v1.7.3",
-    "commitlint-rs-npm": "dalisoft/commitlint-rs-npm#v0.1.11",
-    "dprint-rs-npm": "dalisoft/dprint-rs-npm#0.45.1",
-    "husky": "^9.0.11"
-  },
-  "trustedDependencies": [
-    "husky",
-    "commitlint-rs-npm",
-    "biome-rs-npm",
-    "dprint-rs-npm"
-  ]
+  "typings": "prepare.d.ts"
 }
