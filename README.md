@@ -53,7 +53,7 @@ This project was made for first entry but then improved and added support for ot
 - [dprint-rs-npm](https://github.com/dalisoft/dprint-rs-npm)
 - [biome-rs-npm](https://github.com/dalisoft/biome-rs-npm)
 - [oxlint-rs-npm](https://github.com/dalisoft/oxlint-rs-npm)
-- [lefhook-go-npm](https://github.com/dalisoft/lefthook-go-npm)
+- [lefthook-go-npm](https://github.com/dalisoft/lefthook-go-npm)
 - [ls-lint-go-npm](https://github.com/dalisoft/ls-lint-go-npm)
 
 ## Performance differences
