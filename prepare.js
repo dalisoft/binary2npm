@@ -221,7 +221,7 @@ export const prepare = async ({
   );
 
   await finished(
-    spawn(`tar -xzvf ${localURL + extension} ${binary}${suffix}`, {
+    spawn(`tar -xzvf ${localURL + extension}`, {
       shell: true,
       detached: true,
       cwd: __dirname
