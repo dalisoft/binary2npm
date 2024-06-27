@@ -1,12 +1,14 @@
 import { spawn, spawnSync } from 'node:child_process';
-import { createWriteStream, existsSync } from 'node:fs';
+import { existsSync } from 'node:fs';
 import fs from 'node:fs/promises';
-import { dirname } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { finished } from 'node:stream/promises';
 
-const __dirname = dirname(process.argv[1]);
+const __filename = process.argv[1];
+const __dirname = dirname(__filename);
 
 const noop = () => {};
+const win32path = (path) => path.replace('//', '/');
 
 export const maps = {
   arch: {
@@ -54,9 +56,10 @@ export const prepare = async ({
   switch (remote) {
     case 'github': {
       if (usePackageJson) {
-        const { default: pkg } = await import(`${__dirname}/package.json`, {
-          assert: { type: 'json' }
-        });
+        const pkgPath =  join(__dirname, 'package.json');
+
+        const pkgRaw = await fs.readFile(win32path(pkgPath));
+        const pkg = JSON.parse(pkgRaw);
         FETCH_REPO_URL = `https://api.github.com/repos/${FETCH_REPO}/releases/tags/${tagPrefix}${pkg.version}`;
         FETCH_REPO_FALLBACK_URL = `https://api.github.com/repos/${FETCH_REPO}/releases/tags/${pkg.version}`;
       } else {
@@ -113,7 +116,6 @@ export const prepare = async ({
       body: 'Project has no releases'
     });
     process.exit(1);
-    return false;
   }
 
   // Prepare constants
@@ -173,12 +175,11 @@ export const prepare = async ({
       body: 'Asset not found'
     });
     process.exit(1);
-    return false;
   }
 
   // Preparing
   const suffix = !extension.endsWith('.exe') && vendor === 'pc' ? '.exe' : '';
-  const localURL = `${__dirname}/${binary}`;
+  const localURL = join(__dirname, binary);
 
   if (extension) {
     await Promise.all([
@@ -198,7 +199,6 @@ export const prepare = async ({
       body: await response.text()
     });
     process.exit(1);
-    return false;
   }
 
   // Check if has no extension
@@ -211,7 +211,6 @@ export const prepare = async ({
         body: 'Skip, already exists'
       });
       process.exit(0);
-      return true;
     }
   }
 
@@ -241,11 +240,12 @@ export const prepare = async ({
     process.platform === 'win32' &&
     existsSync(`${__dirname}/${binary}${suffix}`)
   ) {
-    const pkg = await readFile(`${__dirname}/package.json`, {
+    const pkgPath = win32path(join(__dirname, 'package.json'));
+    const pkg = await fs.readFile(pkgPath, {
       encoding: 'utf-8'
     });
     await fs.writeFile(
-      `${__dirname}/package.json`,
+      pkgPath,
       pkg.replace(`: "${binary}"`, `: "${binary}${suffix}"`)
     );
   }
