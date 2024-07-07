@@ -105,9 +105,9 @@ export const prepare = async ({
     release = await release.json();
   } else {
     const releases = await release.json();
-    [release] = stableOnly
+    [release] = (stableOnly
       ? releases.filter(({ prerelease }) => prerelease !== stableOnly)
-      : releases;
+      : releases).filter(({assets}) => assets.length > 0);
   }
 
   if (!release) {
