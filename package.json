@@ -1,6 +1,6 @@
 {
   "name": "binary2npm",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "author": "Davlatjon Shavkatov <opensource@dalisoft.uz>",
   "repository": {
     "type": "git",
@@ -19,5 +19,8 @@
   "keywords": ["binary", "remote", "link"],
   "license": "Apache-2.0",
   "type": "module",
-  "typings": "prepare.d.ts"
+  "typings": "prepare.d.ts",
+  "dependencies": {
+    "detect-libc": "^2.0.3"
+  }
 }

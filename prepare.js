@@ -1,3 +1,4 @@
+import { familySync, GLIBC, MUSL } from 'detect-libc';
 import { spawn, spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import fs from 'node:fs/promises';
@@ -6,6 +7,7 @@ import { finished } from 'node:stream/promises';
 
 const __filename = process.argv[1];
 const __dirname = dirname(__filename);
+const linuxLib = process.platform === 'linux' ? familySync() === MUSL ? 'musl' : 'gnu' : undefined;
 
 const noop = () => {};
 const win32path = (path) => path.replace('//', '/');
@@ -133,8 +135,13 @@ export const prepare = async ({
     version,
     vendor,
     os: _os,
-    arch
+    arch,
+    linux_lib: linuxLib
   };
+
+  if (linuxLib !== undefined) {
+    orders.push('linux_lib');
+  }
 
   const asset = release.assets.find(({ name }) => {
     let assetName = name?.trim();
