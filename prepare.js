@@ -1,8 +1,8 @@
-import { familySync, GLIBC, MUSL } from 'detect-libc';
-import { spawn, spawnSync } from 'node:child_process';
+import { familySync, MUSL } from 'detect-libc';
+import { spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import fs from 'node:fs/promises';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join } from 'node:path';
 import { finished } from 'node:stream/promises';
 
 const __filename = process.argv[1];
@@ -27,7 +27,8 @@ export const maps = {
     darwin: 'darwin',
     win32: 'windows-msvc',
     linux: 'linux'
-  }
+  },
+  lib: linuxLib
 };
 
 // This is valid extensions for GitHub release assets
@@ -124,7 +125,7 @@ export const prepare = async ({
   const arch = maps.arch[process.arch];
   const vendor = maps.vendor[process.platform];
   const _os = maps.os[process.platform];
-  const { assets, tag_name } = release;
+  const { assets: _, tag_name } = release;
   const version = tag_name.startsWith(tagPrefix)
     ? tag_name.slice(tagPrefix.length)
     : tag_name;
@@ -136,7 +137,7 @@ export const prepare = async ({
     vendor,
     os: _os,
     arch,
-    linux_lib: linuxLib
+    linux_lib: maps.lib
   };
 
   if (linuxLib !== undefined) {
