@@ -3,6 +3,7 @@ export declare const maps: {
   arch: Record<NodeJS.Architecture, string>;
   vendor: Record<NodeJS.Platform, string>;
   os: Record<NodeJS.Platform, string>;
+  lib?: 'musl' | 'gnu' | undefined;
 };
 
 export declare function prepare({
